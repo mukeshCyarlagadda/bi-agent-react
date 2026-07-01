@@ -1,0 +1,156 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─── Design system — exact match to blend-and-build-ai.lovable.app ──────── */
+
+:root {
+  --radius: 1rem;
+
+  /* Warm near-black base with subtle amber undertone */
+  --background:            oklch(0.16 0.03 45);
+  --foreground:            oklch(0.97 0.01 80);
+
+  --card:                  oklch(0.22 0.04 45);
+  --card-foreground:       oklch(0.97 0.01 80);
+
+  --popover:               oklch(0.22 0.04 45);
+  --popover-foreground:    oklch(0.97 0.01 80);
+
+  /* Amber / orange brand */
+  --primary:               oklch(0.72 0.19 55);
+  --primary-foreground:    oklch(0.15 0.02 45);
+  --primary-glow:          oklch(0.82 0.17 70);
+
+  --secondary:             oklch(0.28 0.05 50);
+  --secondary-foreground:  oklch(0.97 0.01 80);
+
+  --muted:                 oklch(0.26 0.03 50);
+  --muted-foreground:      oklch(0.72 0.03 70);
+
+  --accent:                oklch(0.78 0.18 60);
+  --accent-foreground:     oklch(0.15 0.02 45);
+
+  --destructive:           oklch(0.62 0.24 25);
+  --destructive-foreground:oklch(0.98 0.01 80);
+
+  --border:                oklch(0.35 0.05 55 / 40%);
+  --input:                 oklch(0.30 0.04 50 / 60%);
+  --ring:                  oklch(0.72 0.19 55);
+
+  /* Glass tokens */
+  --glass:                 oklch(0.25 0.04 50 / 45%);
+  --glass-border:          oklch(0.95 0.05 75 / 12%);
+
+  /* Gradients */
+  --gradient-hero:
+    radial-gradient(ellipse 80% 60% at 50% 0%,  oklch(0.55 0.22 50 / 0.55), transparent 70%),
+    radial-gradient(ellipse 60% 50% at 80% 90%, oklch(0.60 0.20 40 / 0.35), transparent 70%),
+    linear-gradient(180deg, oklch(0.16 0.03 45), oklch(0.13 0.02 40));
+
+  --gradient-primary:
+    linear-gradient(135deg, oklch(0.72 0.19 55), oklch(0.82 0.17 70));
+
+  --gradient-glass:
+    linear-gradient(135deg, oklch(1 0 0 / 0.08), oklch(1 0 0 / 0.02));
+
+  /* Shadows / glows */
+  --shadow-glow:    0 0 60px oklch(0.72 0.19 55 / 0.35);
+  --shadow-glass:   0 10px 40px -10px oklch(0 0 0 / 0.60), inset 0 1px 0 oklch(1 0 0 / 0.08);
+  --shadow-elegant: 0 20px 60px -20px oklch(0.72 0.19 55 / 0.40);
+
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ── Base ─────────────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; border-color: var(--border); }
+html, body, #root { height: 100%; }
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+}
+
+::selection { background: oklch(0.72 0.19 55 / 0.40); color: var(--foreground); }
+
+/* ── Glass utilities ──────────────────────────────────────────────────────── */
+.glass-panel {
+  background: var(--gradient-glass), var(--glass);
+  backdrop-filter: blur(24px) saturate(140%);
+  -webkit-backdrop-filter: blur(24px) saturate(140%);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--shadow-glass);
+  border-radius: calc(var(--radius) + 8px); /* 2xl */
+}
+
+.glass-panel-subtle {
+  background: oklch(1 0 0 / 0.04);
+  backdrop-filter: blur(16px) saturate(130%);
+  -webkit-backdrop-filter: blur(16px) saturate(130%);
+  border: 1px solid oklch(1 0 0 / 0.08);
+  border-radius: var(--radius);
+}
+
+/* ── Gradient utilities ───────────────────────────────────────────────────── */
+.gradient-primary  { background: var(--gradient-primary); }
+.hero-bg           { background: var(--gradient-hero); }
+.glow-primary      { box-shadow: var(--shadow-glow); }
+
+.text-gradient-primary {
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* ── Typography ───────────────────────────────────────────────────────────── */
+.font-display { font-family: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif; }
+
+/* ── Scrollbar ────────────────────────────────────────────────────────────── */
+.scrollbar-thin::-webkit-scrollbar { width: 4px; }
+.scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+.scrollbar-thin::-webkit-scrollbar-thumb { background: oklch(1 0 0 / 0.10); border-radius: 99px; }
+.scrollbar-thin::-webkit-scrollbar-thumb:hover { background: oklch(1 0 0 / 0.20); }
+
+/* ── Animations ───────────────────────────────────────────────────────────── */
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-up { animation: fade-up 0.28s var(--ease-out-soft) both; }
+
+@keyframes bounce-dot {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.35; }
+  30%            { transform: translateY(-5px); opacity: 1; }
+}
+
+@keyframes chart-reveal {
+  from { opacity: 0; transform: scaleY(0.94); transform-origin: top; }
+  to   { opacity: 1; transform: scaleY(1); }
+}
+.chart-reveal { animation: chart-reveal 0.40s var(--ease-out-soft) both; }
+
+/* ── Legacy input class (used inside sidebar dark context) ────────────────── */
+.glass-input {
+  width: 100%;
+  background: oklch(1 0 0 / 0.06);
+  border: 1px solid oklch(1 0 0 / 0.10);
+  border-radius: 10px;
+  padding: 8px 12px;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: oklch(0.97 0.01 80);
+  outline: none;
+  transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+  font-family: inherit;
+}
+.glass-input::placeholder { color: oklch(1 0 0 / 0.25); }
+.glass-input:focus {
+  border-color: oklch(0.72 0.19 55 / 0.55);
+  background: oklch(1 0 0 / 0.09);
+  box-shadow: 0 0 0 3px oklch(0.72 0.19 55 / 0.14);
+}
+.glass-select { appearance: none; -webkit-appearance: none; cursor: pointer; }
