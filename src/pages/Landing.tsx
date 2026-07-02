@@ -37,9 +37,9 @@ function IPhoneLogo({ className }: { className?: string }) {
 function MyMonogram({ className }: { className?: string }) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-      <text x="12" y="16.5" textAnchor="middle" fontSize="9.5"
+      <text x="12" y="17" textAnchor="middle" fontSize="13"
         fontFamily="'Space Grotesk', ui-sans-serif, system-ui, sans-serif"
-        fontWeight="700" letterSpacing="-0.5">MY</text>
+        fontWeight="700" letterSpacing="-0.8">MY</text>
     </svg>
   )
 }
@@ -265,16 +265,20 @@ export default function Landing() {
             ].map(({ icon: Icon, label, value, href, color }) => (
               <a key={label} href={href} target={href.startsWith('http') ? '_blank' : undefined}
                 rel="noopener noreferrer"
-                className="flex items-center gap-4 py-3.5 text-sm transition hover:brightness-125 group">
+                className="flex items-center gap-4 rounded-lg px-1 py-3.5 text-sm transition-all duration-150 group"
+                style={{ background: 'transparent' }}
+                onMouseEnter={e => (e.currentTarget.style.background = 'oklch(1 0 0 / 0.035)')}
+                onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+              >
                 <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg"
                   style={{ background: `${color === 'oklch(0.97 0.01 80)' ? 'oklch(1 0 0 / 0.08)' : 'oklch(0.72 0.19 55 / 0.12)'}`, border: `1px solid ${color === 'oklch(0.97 0.01 80)' ? 'oklch(1 0 0 / 0.14)' : 'oklch(0.72 0.19 55 / 0.20)'}` }}>
                   <Icon className="h-3.5 w-3.5" style={{ color }} />
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="text-[10px] font-medium uppercase tracking-wider" style={{ color: 'oklch(0.72 0.03 70 / 0.60)' }}>{label}</div>
-                  <div className="truncate text-xs font-medium group-hover:underline" style={{ color: 'oklch(0.87 0.02 75)' }}>{value}</div>
+                  <div className="truncate text-xs font-medium" style={{ color: 'oklch(0.87 0.02 75)' }}>{value}</div>
                 </div>
-                <ArrowRight className="h-3.5 w-3.5 shrink-0 opacity-0 transition group-hover:opacity-100 -translate-x-1 group-hover:translate-x-0"
+                <ArrowRight className="h-3.5 w-3.5 shrink-0 opacity-0 transition-all duration-150 group-hover:opacity-100 -translate-x-1 group-hover:translate-x-0"
                   style={{ color: 'oklch(0.72 0.19 55)' }} />
               </a>
             ))}
