@@ -36,10 +36,10 @@ function IPhoneLogo({ className }: { className?: string }) {
 /* MY monogram — portfolio logo */
 function MyMonogram({ className }: { className?: string }) {
   return (
-    <svg className={className} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-      <text x="12" y="17" textAnchor="middle" fontSize="13"
+    <svg className={className} viewBox="-4 -4 32 32" fill="currentColor" aria-hidden="true">
+      <text x="12" y="19" textAnchor="middle" fontSize="26"
         fontFamily="'Space Grotesk', ui-sans-serif, system-ui, sans-serif"
-        fontWeight="700" letterSpacing="-0.8">MY</text>
+        fontWeight="700" letterSpacing="-1.5">MY</text>
     </svg>
   )
 }
