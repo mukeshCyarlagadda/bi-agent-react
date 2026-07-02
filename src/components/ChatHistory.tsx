@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { Diamond, TrendingUp, Users, BarChart3, Search, Maximize2, X } from 'lucide-react'
 import ResultRenderer from './ResultRenderer'
 import { useSession } from '@/context/SessionContext'
+import { useQuerySubmit } from '@/hooks/useQuerySubmit'
 import type { ChatEntry, QueryResponse } from '@/types/api'
 
 /* ── Typing dots ───────────────────────────────────────────────────────────── */
@@ -232,6 +233,7 @@ const SUGGESTIONS = [
 
 /* ── Empty state ───────────────────────────────────────────────────────────── */
 function EmptyState({ connected }: { connected: boolean }) {
+  const { submit } = useQuerySubmit()
   return (
     <div className="flex flex-1 flex-col items-center justify-center gap-8 px-8 py-10">
       <div className="text-center">
@@ -248,9 +250,12 @@ function EmptyState({ connected }: { connected: boolean }) {
       {connected && (
         <div className="grid w-full max-w-md grid-cols-2 gap-2">
           {SUGGESTIONS.map(({ icon: Icon, text }) => (
-            <button key={text}
-              className="glass-panel-subtle flex cursor-pointer items-start gap-2.5 rounded-xl p-3.5 text-left text-xs leading-snug transition hover:brightness-110"
-              style={{ color: 'oklch(0.72 0.03 70)' }}>
+            <button
+              key={text}
+              onClick={() => submit(text)}
+              className="glass-panel-subtle flex cursor-pointer items-start gap-2.5 rounded-xl p-3.5 text-left text-xs leading-snug transition hover:brightness-125 active:scale-95"
+              style={{ color: 'oklch(0.72 0.03 70)' }}
+            >
               <Icon className="mt-0.5 h-3.5 w-3.5 shrink-0" style={{ color: 'oklch(0.72 0.19 55)' }} />
               {text}
             </button>

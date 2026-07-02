@@ -1,53 +1,21 @@
 import React, { useRef, useState } from 'react'
 import { Send } from 'lucide-react'
-import { freeChat, runQuery } from '@/api/query'
 import { useSession } from '@/context/SessionContext'
+import { useQuerySubmit } from '@/hooks/useQuerySubmit'
 
 export default function QueryInput() {
-  const { sessionId, chatHistory, addEntry, updateEntry } = useSession()
+  const { sessionId } = useSession()
+  const { submit, loading } = useQuerySubmit()
   const [question, setQuestion] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     const q = question.trim()
     if (!q || loading) return
-
-    setLoading(true); setError(null); setQuestion('')
+    setQuestion('')
     if (textareaRef.current) textareaRef.current.style.height = 'auto'
-
-    const id = crypto.randomUUID()
-    addEntry({ id, question: q, pending: true, timestamp: new Date() })
-
-    if (!sessionId) {
-      try {
-        const history = chatHistory
-          .filter(e => !e.isSystem && !e.pending && e.response?.result_type === 'message')
-          .slice(-6)
-          .flatMap(e => [
-            { role: 'user', content: e.question },
-            { role: 'assistant', content: e.response?.message ?? '' },
-          ])
-        const reply = await freeChat(q, history)
-        updateEntry(id, { result_type: 'message', message: reply })
-      } catch {
-        updateEntry(id, { result_type: 'message', message: "I'm having trouble right now. Please try again." })
-      }
-      setLoading(false)
-      return
-    }
-
-    try {
-      const response = await runQuery({ question: q })
-      updateEntry(id, response)
-    } catch (err: unknown) {
-      const detail = (err as { response?: { data?: { detail?: string } } })
-        ?.response?.data?.detail ?? 'Request failed — is the API server running?'
-      setError(detail)
-      updateEntry(id, { result_type: 'error', error: detail })
-    } finally { setLoading(false) }
+    await submit(q)
   }
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
@@ -67,14 +35,6 @@ export default function QueryInput() {
 
   return (
     <div className="shrink-0 px-6 pb-6 pt-4">
-      {error && (
-        <div className="mb-3 rounded-xl px-3 py-2 text-xs"
-          style={{ background: 'oklch(0.62 0.24 25 / 0.10)', border: '1px solid oklch(0.62 0.24 25 / 0.20)', color: 'oklch(0.82 0.14 25)' }}>
-          {error}
-        </div>
-      )}
-
-      {/* Composer card */}
       <div className="glass-panel flex items-end gap-3 px-5 py-3.5">
         <textarea
           ref={textareaRef}
@@ -88,7 +48,6 @@ export default function QueryInput() {
           className="scrollbar-thin max-h-40 flex-1 resize-none bg-transparent text-sm leading-relaxed focus:outline-none"
           style={{ color: 'oklch(0.97 0.01 80)', caretColor: 'oklch(0.72 0.19 55)' }}
         />
-
         <button
           type="button"
           onClick={handleSubmit as unknown as React.MouseEventHandler}
@@ -100,18 +59,16 @@ export default function QueryInput() {
             boxShadow: hasText && !loading ? 'var(--shadow-glow)' : 'none',
           }}
         >
-          {loading ? (
-            <svg className="h-4 w-4 animate-spin" style={{ color: 'oklch(1 0 0 / 0.50)' }} viewBox="0 0 24 24" fill="none">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" />
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
-            </svg>
-          ) : (
-            <Send className="h-4 w-4 translate-x-px"
-              style={{ color: hasText ? 'oklch(0.15 0.02 45)' : 'oklch(1 0 0 / 0.35)' }} />
-          )}
+          {loading
+            ? <svg className="h-4 w-4 animate-spin" style={{ color: 'oklch(1 0 0 / 0.50)' }} viewBox="0 0 24 24" fill="none">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+              </svg>
+            : <Send className="h-4 w-4 translate-x-px"
+                style={{ color: hasText ? 'oklch(0.15 0.02 45)' : 'oklch(1 0 0 / 0.35)' }} />
+          }
         </button>
       </div>
-
       <p className="mt-2 text-center text-[11px]" style={{ color: 'oklch(1 0 0 / 0.18)' }}>
         Enter to send · Shift+Enter for newline
       </p>

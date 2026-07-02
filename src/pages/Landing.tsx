@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom'
 import {
   Diamond, Sparkles, Database, BarChart3, Zap,
-  ArrowRight, MessageSquare,
+  ArrowRight, MessageSquare, Mail, Phone, Globe, ExternalLink, Link as LinkIcon,
 } from 'lucide-react'
 
 const FEATURES = [
@@ -47,6 +47,7 @@ export default function Landing() {
           <a href="#features" className="transition hover:text-foreground">Features</a>
           <a href="#how" className="transition hover:text-foreground">How it works</a>
           <a href="#stack" className="transition hover:text-foreground">Stack</a>
+          <a href="#contact" className="transition hover:text-foreground">Contact</a>
         </nav>
 
         <Link to="/chat"
@@ -187,6 +188,67 @@ export default function Landing() {
             style={{ color: 'oklch(0.15 0.02 45)' }}>
             Try it now <ArrowRight className="h-4 w-4" />
           </Link>
+        </div>
+      </section>
+
+      {/* Contact */}
+      <section id="contact" className="relative z-10 mx-auto max-w-4xl px-6 pb-24">
+        <div className="mb-10 text-center">
+          <p className="text-xs font-medium uppercase tracking-widest" style={{ color: 'oklch(0.72 0.03 70 / 0.60)' }}>Built by</p>
+          <h2 className="font-display mt-2 text-3xl font-semibold">Get in touch</h2>
+        </div>
+
+        <div className="glass-panel mx-auto max-w-lg overflow-hidden">
+          {/* Top strip */}
+          <div className="gradient-primary px-8 py-8 text-center">
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl"
+              style={{ background: 'oklch(0 0 0 / 0.18)', border: '1px solid oklch(1 0 0 / 0.20)' }}>
+              <span className="font-display text-2xl font-bold" style={{ color: 'oklch(0.15 0.02 45)' }}>MY</span>
+            </div>
+            <h3 className="font-display text-xl font-bold" style={{ color: 'oklch(0.15 0.02 45)' }}>
+              Mukesh Yarlagadda
+            </h3>
+            <span className="mt-2 inline-block rounded-full px-3 py-1 text-xs font-semibold"
+              style={{ background: 'oklch(0 0 0 / 0.18)', color: 'oklch(0.15 0.02 45)' }}>
+              AI Engineer
+            </span>
+          </div>
+
+          {/* Info rows */}
+          <div className="divide-y px-8 py-2" style={{ borderColor: 'oklch(1 0 0 / 0.06)' }}>
+            {[
+              { icon: Mail,   label: 'Email',     value: 'mukeshchandra4409@gmail.com', href: 'mailto:mukeshchandra4409@gmail.com?subject=BI Agent — Let\'s connect' },
+              { icon: Phone,  label: 'Phone',     value: '+1 (469) 468-2791',           href: 'tel:+14694682791' },
+              { icon: LinkIcon,    label: 'LinkedIn', value: 'mukesh-chandra-yarlagadda',    href: 'https://linkedin.com/in/mukesh-chandra-yarlagadda' },
+              { icon: ExternalLink, label: 'GitHub',   value: 'mukeshCYarlagadda',             href: 'https://github.com/mukeshCYarlagadda' },
+              { icon: Globe,  label: 'Portfolio', value: 'mukeshcyarlagadda.netlify.app', href: 'https://mukeshcyarlagadda.netlify.app' },
+            ].map(({ icon: Icon, label, value, href }) => (
+              <a key={label} href={href} target={href.startsWith('http') ? '_blank' : undefined}
+                rel="noopener noreferrer"
+                className="flex items-center gap-4 py-3.5 text-sm transition hover:brightness-125 group">
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg"
+                  style={{ background: 'oklch(0.72 0.19 55 / 0.12)', border: '1px solid oklch(0.72 0.19 55 / 0.20)' }}>
+                  <Icon className="h-3.5 w-3.5" style={{ color: 'oklch(0.72 0.19 55)' }} />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="text-[10px] font-medium uppercase tracking-wider" style={{ color: 'oklch(0.72 0.03 70 / 0.60)' }}>{label}</div>
+                  <div className="truncate text-xs font-medium group-hover:underline" style={{ color: 'oklch(0.87 0.02 75)' }}>{value}</div>
+                </div>
+                <ArrowRight className="h-3.5 w-3.5 shrink-0 opacity-0 transition group-hover:opacity-100 -translate-x-1 group-hover:translate-x-0"
+                  style={{ color: 'oklch(0.72 0.19 55)' }} />
+              </a>
+            ))}
+          </div>
+
+          {/* CTA */}
+          <div className="px-8 pb-8 pt-4">
+            <a href="mailto:mukeshchandra4409@gmail.com?subject=BI Agent — Let's connect"
+              className="gradient-primary glow-primary flex w-full items-center justify-center gap-2 rounded-xl py-3 text-sm font-semibold transition hover:brightness-110"
+              style={{ color: 'oklch(0.15 0.02 45)' }}>
+              <Mail className="h-4 w-4" />
+              Send an email
+            </a>
+          </div>
         </div>
       </section>
 
