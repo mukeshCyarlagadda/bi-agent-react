@@ -90,10 +90,18 @@ export default function Landing() {
           <a href="#contact" className="transition hover:text-foreground">Contact</a>
         </nav>
 
-        <Link to="/chat"
-          className="glass-panel-subtle inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium transition hover:brightness-110">
-          Open app <ArrowRight className="h-3.5 w-3.5" />
-        </Link>
+        <div className="flex items-center gap-2">
+          <Link to="/login"
+            className="inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium transition hover:brightness-110"
+            style={{ color: 'oklch(0.72 0.03 70)' }}>
+            Sign In
+          </Link>
+          <Link to="/login"
+            className="gradient-primary inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold transition hover:brightness-110"
+            style={{ color: 'oklch(0.15 0.02 45)' }}>
+            Get Started <ArrowRight className="h-3.5 w-3.5" />
+          </Link>
+        </div>
       </header>
 
       {/* Hero */}

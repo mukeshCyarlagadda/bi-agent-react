@@ -1,42 +1,32 @@
-/**
- * Axios instance — single place for base URL, headers, and error handling.
- *
- * All API modules import `apiClient` from here.
- * The session ID is injected per-request via a request interceptor so
- * individual call sites don't have to remember to add it.
- */
 import axios from 'axios'
+import { supabase } from '@/lib/supabase'
 
 const apiClient = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8000',
   headers: { 'Content-Type': 'application/json' },
-  timeout: 120_000,   // 120 s — LLM + SQL can be slow
+  timeout: 120_000,
 })
 
-/**
- * Request interceptor: attach X-Session-ID from sessionStorage if present.
- *
- * sessionStorage persists for the life of the browser tab, not across tabs.
- * That matches the in-memory session store on the server — perfect.
- */
-apiClient.interceptors.request.use((config) => {
+// Attach X-Session-ID (DB session) and Authorization: Bearer <JWT> on every request.
+// getSession() returns the cached in-memory token — no network call.
+apiClient.interceptors.request.use(async (config) => {
   const sessionId = sessionStorage.getItem('sessionId')
-  if (sessionId) {
-    config.headers['X-Session-ID'] = sessionId
+  if (sessionId) config.headers['X-Session-ID'] = sessionId
+
+  const { data: { session } } = await supabase.auth.getSession()
+  if (session?.access_token) {
+    config.headers['Authorization'] = `Bearer ${session.access_token}`
   }
   return config
 })
 
-/**
- * Response interceptor: turn 401 → clear session so the UI resets to
- * the connection screen automatically.
- */
+// 401 → JWT expired or invalid → send to login, clear DB session
 apiClient.interceptors.response.use(
   (res) => res,
   (error) => {
     if (error.response?.status === 401) {
       sessionStorage.removeItem('sessionId')
-      window.location.reload()
+      window.location.href = '/login'
     }
     return Promise.reject(error)
   },
