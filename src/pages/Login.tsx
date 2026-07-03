@@ -13,7 +13,7 @@ export default function Login() {
   const [showPw, setShowPw]     = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError]   = useState<string | null>(null)
-  const [success, setSuccess] = useState<string | null>(null)
+  const [checkInbox, setCheckInbox] = useState<string | null>(null) // holds the email after signup
 
   useEffect(() => {
     if (!loading && user) navigate('/chat', { replace: true })
@@ -22,7 +22,7 @@ export default function Login() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError(null)
-    setSuccess(null)
+    setCheckInbox(null)
     if (!email.trim() || !password.trim()) {
       setError('Please enter your email and password.')
       return
@@ -34,11 +34,10 @@ export default function Login() {
       else navigate('/chat', { replace: true })
     } else {
       const { error } = await signUp(email, password)
-      if (error) {
-        if (error.startsWith('Check your email')) setSuccess(error)
-        else setError(error)
+      if (error && !error.startsWith('Check your email')) {
+        setError(error)
       } else {
-        setSuccess('Account created! Check your email to confirm, then sign in.')
+        setCheckInbox(email) // show inbox prompt screen
       }
     }
     setSubmitting(false)
@@ -47,13 +46,60 @@ export default function Login() {
   function switchMode() {
     setMode(m => m === 'signin' ? 'signup' : 'signin')
     setError(null)
-    setSuccess(null)
+    setCheckInbox(null)
   }
 
   if (loading) {
     return (
       <div className="hero-bg flex h-screen items-center justify-center">
         <Diamond className="h-6 w-6 animate-pulse" style={{ color: 'oklch(0.72 0.19 55)' }} fill="currentColor" />
+      </div>
+    )
+  }
+
+  // ── Signup success — show inbox prompt ──────────────────────────────────────
+  if (checkInbox) {
+    return (
+      <div className="hero-bg relative flex min-h-screen flex-col items-center justify-center px-4">
+        <div className="pointer-events-none fixed inset-0 overflow-hidden">
+          <div className="absolute -top-32 left-1/4 h-[440px] w-[440px] rounded-full blur-[130px]"
+            style={{ background: 'oklch(0.55 0.22 50 / 0.16)' }} />
+          <div className="absolute bottom-0 right-0 h-[360px] w-[360px] rounded-full blur-[110px]"
+            style={{ background: 'oklch(0.78 0.18 60 / 0.10)' }} />
+        </div>
+
+        <div className="glass-panel relative z-10 w-full max-w-sm px-8 py-10 text-center">
+          {/* Mail icon */}
+          <div className="mx-auto mb-6 flex h-14 w-14 items-center justify-center rounded-2xl"
+            style={{ background: 'oklch(0.72 0.19 55 / 0.15)', border: '1px solid oklch(0.72 0.19 55 / 0.25)' }}>
+            <Mail className="h-6 w-6" style={{ color: 'oklch(0.72 0.19 55)' }} />
+          </div>
+
+          <h2 className="font-display mb-2 text-xl font-bold" style={{ color: 'oklch(0.97 0.01 80)' }}>
+            Check your inbox
+          </h2>
+          <p className="mb-5 text-sm" style={{ color: 'oklch(0.72 0.03 70)' }}>
+            We sent a confirmation link to
+          </p>
+
+          {/* Email pill */}
+          <div className="mx-auto mb-6 inline-flex items-center gap-2 rounded-xl px-4 py-2.5"
+            style={{ background: 'oklch(0.72 0.19 55 / 0.12)', border: '1px solid oklch(0.72 0.19 55 / 0.25)' }}>
+            <Mail className="h-3.5 w-3.5 shrink-0" style={{ color: 'oklch(0.72 0.19 55)' }} />
+            <span className="text-sm font-medium" style={{ color: 'oklch(0.87 0.02 75)' }}>{checkInbox}</span>
+          </div>
+
+          <p className="mb-8 text-xs leading-relaxed" style={{ color: 'oklch(0.72 0.03 70)' }}>
+            Click the link in the email to activate your account, then come back to sign in.
+          </p>
+
+          <button
+            onClick={() => { setCheckInbox(null); setMode('signin'); setPassword('') }}
+            className="gradient-primary w-full rounded-xl py-3 text-sm font-semibold transition hover:brightness-110"
+            style={{ color: 'oklch(0.15 0.02 45)' }}>
+            Back to Sign In
+          </button>
+        </div>
       </div>
     )
   }
@@ -96,7 +142,7 @@ export default function Login() {
         {/* Mode tabs */}
         <div className="mb-6 flex rounded-xl p-1" style={{ background: 'oklch(1 0 0 / 0.05)' }}>
           {(['signin', 'signup'] as const).map(m => (
-            <button key={m} onClick={() => { setMode(m); setError(null); setSuccess(null) }}
+            <button key={m} onClick={() => { setMode(m); setError(null); setCheckInbox(null) }}
               className="flex-1 rounded-lg py-2 text-xs font-medium transition-all"
               style={mode === m ? {
                 background: 'oklch(0.72 0.19 55 / 0.20)',
@@ -157,12 +203,6 @@ export default function Login() {
             <p className="rounded-lg px-3 py-2 text-xs"
               style={{ background: 'oklch(0.55 0.22 25 / 0.15)', border: '1px solid oklch(0.55 0.22 25 / 0.30)', color: 'oklch(0.80 0.15 25)' }}>
               {error}
-            </p>
-          )}
-          {success && (
-            <p className="rounded-lg px-3 py-2 text-xs"
-              style={{ background: 'oklch(0.55 0.18 150 / 0.15)', border: '1px solid oklch(0.55 0.18 150 / 0.30)', color: 'oklch(0.78 0.18 150)' }}>
-              {success}
             </p>
           )}
 
