@@ -12,14 +12,8 @@ import './index.css'
 // Shows a spinner while Supabase resolves the session (avoids flash-redirect).
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth()
-  if (loading) {
-    return (
-      <div className="hero-bg flex h-screen items-center justify-center">
-        <div className="h-5 w-5 animate-spin rounded-full border-2 border-transparent"
-          style={{ borderTopColor: 'oklch(0.72 0.19 55)' }} />
-      </div>
-    )
-  }
+  // loading has a 3s timeout in AuthContext — it will always resolve
+  if (loading) return null
   if (!user) return <Navigate to="/login" replace />
   return <>{children}</>
 }

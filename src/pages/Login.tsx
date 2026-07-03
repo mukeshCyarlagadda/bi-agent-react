@@ -49,14 +49,6 @@ export default function Login() {
     setCheckInbox(null)
   }
 
-  if (loading) {
-    return (
-      <div className="hero-bg flex h-screen items-center justify-center">
-        <Diamond className="h-6 w-6 animate-pulse" style={{ color: 'oklch(0.72 0.19 55)' }} fill="currentColor" />
-      </div>
-    )
-  }
-
   // ── Signup success — show inbox prompt ──────────────────────────────────────
   if (checkInbox) {
     return (
