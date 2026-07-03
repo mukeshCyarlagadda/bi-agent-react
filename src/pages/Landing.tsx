@@ -126,7 +126,7 @@ export default function Landing() {
 
         {/* CTA buttons */}
         <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
-          <Link to="/chat"
+          <Link to="/login"
             className="gradient-primary glow-primary group inline-flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-semibold transition hover:brightness-110"
             style={{ color: 'oklch(0.15 0.02 45)' }}>
             <MessageSquare className="h-4 w-4" />
@@ -231,7 +231,7 @@ export default function Landing() {
               Connect a database and ask your first question in under a minute.
             </p>
           </div>
-          <Link to="/chat"
+          <Link to="/login"
             className="gradient-primary glow-primary inline-flex shrink-0 items-center gap-2 rounded-xl px-6 py-3 text-sm font-semibold transition hover:brightness-110"
             style={{ color: 'oklch(0.15 0.02 45)' }}>
             Try it now <ArrowRight className="h-4 w-4" />
