@@ -335,7 +335,7 @@ export default function Sidebar() {
 
   async function newProject() {
     try {
-      const id = await createProject({ title: 'New project', dbType: dbType ?? undefined, backendSessionId: sessionId ?? undefined })
+      const id = await createProject({ title: 'New project' })
       await setActiveProject(id)
     } catch { /* not signed in */ }
   }
