@@ -10,12 +10,13 @@ interface SessionState {
 }
 
 interface SessionContextValue extends SessionState {
-  login:        (res: ConnectResponse) => void
-  logout:       () => void
-  addEntry:     (entry: ChatEntry) => void
-  updateEntry:  (id: string, response: QueryResponse) => void
-  setShowSql:   (v: boolean) => void
-  clearHistory: () => void
+  login:            (res: ConnectResponse) => void
+  logout:           () => void
+  addEntry:         (entry: ChatEntry) => void
+  updateEntry:      (id: string, response: QueryResponse) => void
+  setShowSql:       (v: boolean) => void
+  clearHistory:     () => void
+  loadChatHistory:  (entries: ChatEntry[]) => void
 }
 
 const SessionContext = createContext<SessionContextValue | null>(null)
@@ -107,8 +108,12 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
     setState(s => ({ ...s, chatHistory: [] }))
   }, [])
 
+  const loadChatHistory = useCallback((entries: ChatEntry[]) => {
+    setState(s => ({ ...s, chatHistory: entries }))
+  }, [])
+
   return (
-    <SessionContext.Provider value={{ ...state, login, logout, addEntry, updateEntry, setShowSql, clearHistory }}>
+    <SessionContext.Provider value={{ ...state, login, logout, addEntry, updateEntry, setShowSql, clearHistory, loadChatHistory }}>
       {children}
     </SessionContext.Provider>
   )

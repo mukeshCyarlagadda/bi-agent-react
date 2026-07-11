@@ -1,9 +1,17 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Diamond, TrendingUp, Users, BarChart3, Search, Maximize2, X } from 'lucide-react'
+import { Diamond, TrendingUp, Users, BarChart3, Search, Maximize2, X, Pin, PinOff } from 'lucide-react'
 import ResultRenderer from './ResultRenderer'
 import { useSession } from '@/context/SessionContext'
+import { useAuth } from '@/context/AuthContext'
+import { useProject } from '@/context/ProjectContext'
 import { useQuerySubmit } from '@/hooks/useQuerySubmit'
 import type { ChatEntry, QueryResponse } from '@/types/api'
+
+function firstName(email: string): string {
+  const prefix = email.split('@')[0]            // "mukesh.yarlagadda" or "mukeshchandra4409"
+  const name = prefix.split(/[._\-0-9]/)[0]    // "mukesh" or "mukeshchandra"
+  return name.charAt(0).toUpperCase() + name.slice(1)
+}
 
 /* ── Typing dots ───────────────────────────────────────────────────────────── */
 function TypingDots() {
@@ -62,9 +70,25 @@ function usePlotlyInject(html: string) {
 }
 
 /* ── Full-width inline chart — bleeds edge to edge, no border ──────────────── */
-function FullWidthChart({ html, onExpand }: { html: string; onExpand: () => void }) {
+function FullWidthChart({ html, title, onExpand }: { html: string; title: string; onExpand: () => void }) {
   const ref = usePlotlyInject(html)
   const [hovered, setHovered] = useState(false)
+  const [pinning, setPinning] = useState(false)
+  const { activeProjectId, dashboardItems, pinChart, unpinChart } = useProject()
+
+  const pinnedItem = dashboardItems.find(i => i.chart_html === html)
+  const isPinned = !!pinnedItem
+
+  async function handlePin() {
+    if (!activeProjectId) return
+    setPinning(true)
+    try {
+      if (isPinned) await unpinChart(pinnedItem!.id)
+      else await pinChart(activeProjectId, title, html)
+    } finally {
+      setPinning(false)
+    }
+  }
 
   return (
     <div
@@ -80,24 +104,44 @@ function FullWidthChart({ html, onExpand }: { html: string; onExpand: () => void
         style={{ height: 380, background: 'transparent', overflow: 'hidden' }}
       />
 
-      {/* Expand hint — appears on hover, top-right corner */}
-      <button
-        onClick={onExpand}
-        aria-label="Expand chart"
-        className="absolute right-4 top-3 flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium transition-all"
-        style={{
-          opacity: hovered ? 1 : 0,
-          background: 'oklch(0.16 0.03 45 / 0.80)',
-          border: '1px solid oklch(0.72 0.19 55 / 0.30)',
-          color: 'oklch(0.72 0.19 55)',
-          backdropFilter: 'blur(8px)',
-          pointerEvents: hovered ? 'auto' : 'none',
-          transition: 'opacity 0.18s ease',
-        }}
+      {/* Hover controls — top-right corner */}
+      <div
+        className="absolute right-4 top-3 flex items-center gap-2"
+        style={{ opacity: hovered ? 1 : 0, transition: 'opacity 0.18s ease', pointerEvents: hovered ? 'auto' : 'none' }}
       >
-        <Maximize2 className="h-3 w-3" />
-        Expand
-      </button>
+        {/* Pin button */}
+        <button
+          onClick={handlePin}
+          disabled={pinning}
+          aria-label={isPinned ? 'Unpin from dashboard' : 'Pin to dashboard'}
+          className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium transition-all"
+          style={{
+            background: isPinned ? 'oklch(0.72 0.19 55 / 0.18)' : 'oklch(0.16 0.03 45 / 0.80)',
+            border: isPinned ? '1px solid oklch(0.72 0.19 55 / 0.50)' : '1px solid oklch(0.72 0.19 55 / 0.30)',
+            color: 'oklch(0.72 0.19 55)',
+            backdropFilter: 'blur(8px)',
+          }}
+        >
+          {isPinned ? <PinOff className="h-3 w-3" /> : <Pin className="h-3 w-3" />}
+          {isPinned ? 'Pinned' : 'Pin'}
+        </button>
+
+        {/* Expand button */}
+        <button
+          onClick={onExpand}
+          aria-label="Expand chart"
+          className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium transition-all"
+          style={{
+            background: 'oklch(0.16 0.03 45 / 0.80)',
+            border: '1px solid oklch(0.72 0.19 55 / 0.30)',
+            color: 'oklch(0.72 0.19 55)',
+            backdropFilter: 'blur(8px)',
+          }}
+        >
+          <Maximize2 className="h-3 w-3" />
+          Expand
+        </button>
+      </div>
     </div>
   )
 }
@@ -185,13 +229,15 @@ function MessagePair({ entry, showSql, onApproveResult, onExpandChart }: {
   return (
     <div className="flex flex-col gap-3 animate-fade-up px-6">
 
-      {/* User bubble — gradient amber, right */}
-      <div className="flex justify-end">
-        <div className="gradient-primary max-w-[78%] rounded-2xl rounded-br-md px-4 py-2.5 text-sm leading-relaxed shadow-md"
-          style={{ color: 'oklch(0.15 0.02 45)' }}>
-          {entry.question}
+      {/* User bubble — only shown when there's an actual question */}
+      {entry.question && (
+        <div className="flex justify-end">
+          <div className="gradient-primary max-w-[78%] rounded-2xl rounded-br-md px-4 py-2.5 text-sm leading-relaxed shadow-md"
+            style={{ color: 'oklch(0.15 0.02 45)' }}>
+            {entry.question}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Bot — Diamond icon + plain text, no bubble */}
       <div className="flex gap-4">
@@ -216,6 +262,7 @@ function MessagePair({ entry, showSql, onApproveResult, onExpandChart }: {
       {chartHtml && (
         <FullWidthChart
           html={chartHtml}
+          title={entry.question || 'Chart'}
           onExpand={() => onExpandChart(chartHtml)}
         />
       )}
@@ -234,6 +281,24 @@ const SUGGESTIONS = [
 /* ── Empty state ───────────────────────────────────────────────────────────── */
 function EmptyState({ connected }: { connected: boolean }) {
   const { submit } = useQuerySubmit()
+
+  if (!connected) {
+    return (
+      <div className="flex flex-1 items-end justify-center pb-10">
+        <div className="flex flex-wrap justify-center gap-2">
+          {['Natural language → SQL', 'Auto-charts', 'Export results'].map(f => (
+            <span key={f}
+              className="rounded-full px-3 py-1 text-[11px]"
+              style={{ background: 'oklch(1 0 0 / 0.05)', border: '1px solid oklch(1 0 0 / 0.09)', color: 'oklch(0.72 0.03 70 / 0.60)' }}>
+              {f}
+            </span>
+          ))}
+        </div>
+      </div>
+    )
+  }
+
+  // Connected — show project is ready + quick suggestions
   return (
     <div className="flex flex-1 flex-col items-center justify-center gap-8 px-8 py-10">
       <div className="text-center">
@@ -242,26 +307,42 @@ function EmptyState({ connected }: { connected: boolean }) {
         </div>
         <h2 className="font-display mb-2 text-2xl font-bold">What do you want to know?</h2>
         <p className="text-sm" style={{ color: 'oklch(0.72 0.03 70)' }}>
-          {connected
-            ? 'Ask anything about your data — I write SQL, fetch results, and draw charts.'
-            : 'Connect a database to start querying, or just say hi.'}
+          Ask anything about your data — I write SQL, fetch results, and draw charts.
         </p>
       </div>
-      {connected && (
-        <div className="grid w-full max-w-md grid-cols-2 gap-2">
-          {SUGGESTIONS.map(({ icon: Icon, text }) => (
-            <button
-              key={text}
-              onClick={() => submit(text)}
-              className="glass-panel-subtle flex cursor-pointer items-start gap-2.5 rounded-xl p-3.5 text-left text-xs leading-snug transition hover:brightness-125 active:scale-95"
-              style={{ color: 'oklch(0.72 0.03 70)' }}
-            >
-              <Icon className="mt-0.5 h-3.5 w-3.5 shrink-0" style={{ color: 'oklch(0.72 0.19 55)' }} />
-              {text}
-            </button>
-          ))}
+      <div className="grid w-full max-w-md grid-cols-2 gap-2">
+        {SUGGESTIONS.map(({ icon: Icon, text }) => (
+          <button
+            key={text}
+            onClick={() => submit(text)}
+            className="glass-panel-subtle flex cursor-pointer items-start gap-2.5 rounded-xl p-3.5 text-left text-xs leading-snug transition hover:brightness-125 active:scale-95"
+            style={{ color: 'oklch(0.72 0.03 70)' }}
+          >
+            <Icon className="mt-0.5 h-3.5 w-3.5 shrink-0" style={{ color: 'oklch(0.72 0.19 55)' }} />
+            {text}
+          </button>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+/* ── Greeting message ──────────────────────────────────────────────────────── */
+function Greeting() {
+  const { user } = useAuth()
+  const name = user?.email ? firstName(user.email) : ''
+  const msg = `Hi${name ? ` ${name}` : ''}! 👋 I'm your BI Agent — ask me anything, or connect a database from the sidebar to start querying your data with natural language.`
+
+  return (
+    <div className="animate-fade-up px-6 pt-6">
+      <div className="flex gap-4">
+        <div className="glass-panel-subtle mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg">
+          <Diamond className="h-3.5 w-3.5" style={{ color: 'oklch(0.72 0.19 55)' }} fill="currentColor" />
         </div>
-      )}
+        <p className="flex-1 pt-1.5 text-sm leading-relaxed" style={{ color: 'oklch(0.87 0.02 75)' }}>
+          {msg}
+        </p>
+      </div>
     </div>
   )
 }
@@ -276,7 +357,12 @@ export default function ChatHistory() {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [chatHistory.length, chatHistory.some(e => !e.pending)])
 
-  if (!chatHistory.length) return <EmptyState connected={!!sessionId} />
+  if (!chatHistory.length) return (
+    <div className="flex flex-1 flex-col">
+      <Greeting />
+      <EmptyState connected={!!sessionId} />
+    </div>
+  )
 
   return (
     <>

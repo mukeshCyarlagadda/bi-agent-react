@@ -8,10 +8,12 @@ const apiClient = axios.create({
 })
 
 // Attach X-Session-ID (DB session) and Authorization: Bearer <JWT> on every request.
-// getSession() returns the cached in-memory token — no network call.
+// Only sets X-Session-ID from sessionStorage if the caller didn't already set a custom one.
 apiClient.interceptors.request.use(async (config) => {
-  const sessionId = sessionStorage.getItem('sessionId')
-  if (sessionId) config.headers['X-Session-ID'] = sessionId
+  if (!config.headers['X-Session-ID']) {
+    const sessionId = sessionStorage.getItem('sessionId')
+    if (sessionId) config.headers['X-Session-ID'] = sessionId
+  }
 
   const { data: { session } } = await supabase.auth.getSession()
   if (session?.access_token) {
@@ -20,7 +22,8 @@ apiClient.interceptors.request.use(async (config) => {
   return config
 })
 
-// 401 → JWT expired or invalid → send to login, clear DB session
+// 401 = JWT invalid/expired → send to login.
+// Expired backend sessions now return 404 from get_session, so they never reach here.
 apiClient.interceptors.response.use(
   (res) => res,
   (error) => {

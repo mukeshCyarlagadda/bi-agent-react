@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { SessionProvider } from './context/SessionContext'
 import { AuthProvider, useAuth } from './context/AuthContext'
+import { ProjectProvider } from './context/ProjectContext'
 import Landing from './pages/Landing'
 import Login from './pages/Login'
 import App from './App'
@@ -22,6 +23,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <AuthProvider>
       <SessionProvider>
+        <ProjectProvider>
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Landing />} />
@@ -34,6 +36,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </BrowserRouter>
+        </ProjectProvider>
       </SessionProvider>
     </AuthProvider>
   </React.StrictMode>,

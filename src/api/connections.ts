@@ -20,3 +20,21 @@ export async function listTables(): Promise<{ tables: string[]; db_type: string 
 export async function disconnectDb(): Promise<void> {
   await apiClient.delete('/api/v1/disconnect')
 }
+
+export async function previewData(sessionId: string, limit = 100): Promise<{
+  columns: string[]
+  rows: unknown[][]
+  total: number
+  table: string
+}> {
+  const { data } = await apiClient.get('/api/v1/preview', {
+    params: { limit },
+    headers: { 'X-Session-ID': sessionId },
+  })
+  return data
+}
+
+export async function reconnectFile(dbPath: string): Promise<import('@/types/api').ConnectResponse> {
+  const { data } = await apiClient.post('/api/v1/reconnect-file', { db_path: dbPath })
+  return data
+}

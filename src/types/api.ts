@@ -28,6 +28,7 @@ export interface ConnectResponse {
   db_type: string
   tables: string[]
   message: string
+  db_path?: string   // set for file uploads; lets frontend restore expired sessions
 }
 
 // ── Query ────────────────────────────────────────────────────────────────────
