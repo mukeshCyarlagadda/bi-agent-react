@@ -331,7 +331,7 @@ function EmptyState({ connected }: { connected: boolean }) {
 function Greeting() {
   const { user } = useAuth()
   const name = user?.email ? firstName(user.email) : ''
-  const msg = `Hi${name ? ` ${name}` : ''}! 👋 I'm your BI Agent — ask me anything, or connect a database from the sidebar to start querying your data with natural language.`
+  const msg = `Hi${name ? ` ${name}` : ''}! 👋 I'm your Kensho AI — ask me anything, or connect a database from the sidebar to start querying your data with natural language.`
 
   return (
     <div className="animate-fade-up px-6 pt-6">

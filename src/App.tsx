@@ -337,7 +337,7 @@ export default function App() {
           {/* Left: title + view toggle */}
           <div className="flex items-center gap-4">
             <div>
-              <div className="font-display text-sm font-semibold">BI Agent</div>
+              <div className="font-display text-sm font-semibold">Kensho AI</div>
               <div className="text-[11px]" style={{ color: 'oklch(0.72 0.03 70)' }}>
                 Natural language to SQL
               </div>

@@ -80,7 +80,7 @@ export default function Landing() {
           <div className="glass-panel-subtle flex h-9 w-9 items-center justify-center rounded-lg">
             <Diamond className="h-4 w-4" style={{ color: 'oklch(0.72 0.19 55)' }} fill="currentColor" />
           </div>
-          <span className="font-display text-lg font-semibold tracking-tight">BI Agent</span>
+          <span className="font-display text-lg font-semibold tracking-tight">Kensho AI</span>
         </div>
 
         <nav className="hidden items-center gap-8 text-sm md:flex" style={{ color: 'oklch(0.72 0.03 70)' }}>
@@ -120,7 +120,7 @@ export default function Landing() {
         </h1>
 
         <p className="mx-auto mt-6 max-w-2xl text-lg" style={{ color: 'oklch(0.72 0.03 70)' }}>
-          BI Agent turns plain English into precise SQL, live charts, and business-ready answers —
+          Kensho AI turns plain English into precise SQL, live charts, and business-ready answers —
           across every database you connect.
         </p>
 
@@ -189,7 +189,7 @@ export default function Landing() {
         <h2 className="font-display mb-12 text-center text-3xl font-semibold">How it works</h2>
         <div className="grid gap-8 md:grid-cols-3">
           {[
-            { step: '01', title: 'Connect', desc: 'Point BI Agent at any database — SQLite file, cloud warehouse, or hosted Postgres.' },
+            { step: '01', title: 'Connect', desc: 'Point Kensho AI at any database — SQLite file, cloud warehouse, or hosted Postgres.' },
             { step: '02', title: 'Ask', desc: 'Type your question in plain English. No SQL knowledge needed.' },
             { step: '03', title: 'Explore', desc: 'Get tables, charts, and written summaries — all backed by the exact SQL generated.' },
           ].map(({ step, title, desc }) => (
@@ -265,7 +265,7 @@ export default function Landing() {
           {/* Info rows */}
           <div className="divide-y px-8 py-2" style={{ borderColor: 'oklch(1 0 0 / 0.06)' }}>
             {[
-              { icon: Mail,         label: 'Email',     value: 'mukeshchandra4409@gmail.com',   href: "mailto:mukeshchandra4409@gmail.com?subject=BI Agent — Let's connect", color: 'oklch(0.97 0.01 80)' },
+              { icon: Mail,         label: 'Email',     value: 'mukeshchandra4409@gmail.com',   href: "mailto:mukeshchandra4409@gmail.com?subject=Kensho AI — Let's connect", color: 'oklch(0.97 0.01 80)' },
               { icon: IPhoneLogo,   label: 'Phone',     value: '+1 (469) 468-2791',             href: 'tel:+14694682791',                                                    color: 'oklch(0.97 0.01 80)' },
               { icon: LinkedInLogo, label: 'LinkedIn',  value: 'mukesh-chandra-yarlagadda',     href: 'https://linkedin.com/in/mukesh-chandra-yarlagadda',                   color: 'oklch(0.72 0.19 55)' },
               { icon: GitHubLogo,   label: 'GitHub',    value: 'mukeshCYarlagadda',             href: 'https://github.com/mukeshCYarlagadda',                                color: 'oklch(0.72 0.19 55)' },
@@ -294,7 +294,7 @@ export default function Landing() {
 
           {/* CTA */}
           <div className="px-8 pb-8 pt-4">
-            <a href="mailto:mukeshchandra4409@gmail.com?subject=BI Agent — Let's connect"
+            <a href="mailto:mukeshchandra4409@gmail.com?subject=Kensho AI — Let's connect"
               className="gradient-primary glow-primary flex w-full items-center justify-center gap-2 rounded-xl py-3 text-sm font-semibold transition hover:brightness-110"
               style={{ color: 'oklch(0.15 0.02 45)' }}>
               <Mail className="h-4 w-4" />
@@ -305,7 +305,7 @@ export default function Landing() {
       </section>
 
       <footer className="relative z-10 py-8 text-center text-xs" style={{ borderTop: '1px solid oklch(0.35 0.05 55 / 40%)', color: 'oklch(0.72 0.03 70)' }}>
-        © 2026 BI Agent · LangGraph · FastAPI · OpenAI
+        © 2026 Kensho AI · LangGraph · FastAPI · OpenAI
       </footer>
     </div>
   )

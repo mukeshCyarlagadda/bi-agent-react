@@ -123,7 +123,7 @@ export default function Login() {
           </div>
           <div className="text-center">
             <h1 className="font-display text-xl font-bold" style={{ color: 'oklch(0.97 0.01 80)' }}>
-              BI Agent
+              Kensho AI
             </h1>
             <p className="mt-0.5 text-xs" style={{ color: 'oklch(0.72 0.03 70)' }}>
               {mode === 'signin' ? 'Sign in to your account' : 'Create your account'}
