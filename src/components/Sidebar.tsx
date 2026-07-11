@@ -375,19 +375,37 @@ export default function Sidebar() {
         }}
       >
         {/* Brand */}
-        <div className="flex h-16 items-center justify-between px-3">
-          <Link to="/" className="flex items-center gap-2 rounded-lg px-2 py-1.5 transition hover:bg-white/5">
-            <div className="gradient-primary flex h-8 w-8 shrink-0 items-center justify-center rounded-lg">
-              <Diamond className="h-4 w-4" style={{ color: 'oklch(0.15 0.02 45)' }} fill="currentColor" />
-            </div>
-            {!collapsed && <span className="font-display text-sm font-semibold">BI Agent</span>}
-          </Link>
-          <button onClick={() => setCollapsed(c => !c)}
-            className="flex h-8 w-8 items-center justify-center rounded-lg transition hover:bg-white/5"
-            style={{ color: 'oklch(0.72 0.03 70)' }}>
-            {collapsed ? <PanelLeft className="h-4 w-4" /> : <PanelLeftClose className="h-4 w-4" />}
-          </button>
-        </div>
+        {collapsed ? (
+          /* Collapsed: expand button on top (easy to click), logo below */
+          <div className="flex flex-col items-center gap-1 px-2 pt-3 pb-2">
+            <button onClick={() => setCollapsed(false)} title="Expand sidebar"
+              className="flex h-9 w-9 items-center justify-center rounded-xl transition hover:bg-white/10"
+              style={{ color: 'oklch(0.87 0.02 75)' }}>
+              <PanelLeft className="h-5 w-5" />
+            </button>
+            <Link to="/" title="BI Agent"
+              className="flex h-9 w-9 items-center justify-center rounded-xl transition hover:bg-white/5">
+              <div className="gradient-primary flex h-8 w-8 shrink-0 items-center justify-center rounded-lg">
+                <Diamond className="h-4 w-4" style={{ color: 'oklch(0.15 0.02 45)' }} fill="currentColor" />
+              </div>
+            </Link>
+          </div>
+        ) : (
+          /* Expanded: logo left, collapse button right */
+          <div className="flex h-16 items-center justify-between px-3">
+            <Link to="/" className="flex items-center gap-2 rounded-lg px-2 py-1.5 transition hover:bg-white/5">
+              <div className="gradient-primary flex h-8 w-8 shrink-0 items-center justify-center rounded-lg">
+                <Diamond className="h-4 w-4" style={{ color: 'oklch(0.15 0.02 45)' }} fill="currentColor" />
+              </div>
+              <span className="font-display text-sm font-semibold">BI Agent</span>
+            </Link>
+            <button onClick={() => setCollapsed(true)} title="Collapse sidebar"
+              className="flex h-8 w-8 items-center justify-center rounded-lg transition hover:bg-white/5"
+              style={{ color: 'oklch(0.72 0.03 70)' }}>
+              <PanelLeftClose className="h-4 w-4" />
+            </button>
+          </div>
+        )}
 
         {/* New Project */}
         <div className="px-3 pb-2">
