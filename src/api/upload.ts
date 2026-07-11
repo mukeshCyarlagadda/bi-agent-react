@@ -6,7 +6,7 @@ export async function uploadFile(file: File): Promise<ConnectResponse> {
   form.append('file', file)
   const { data } = await apiClient.post<ConnectResponse>('/api/v1/upload', form, {
     headers: { 'Content-Type': 'multipart/form-data' },
-    timeout: 60_000,
+    timeout: 180_000,
   })
   return data
 }
