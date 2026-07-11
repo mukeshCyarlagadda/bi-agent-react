@@ -60,12 +60,10 @@ function FileIcon({ name }: { name: string }) {
 const ACCEPT = '.csv,.xlsx,.xls,.pdf,.jpg,.jpeg,.png,.webp'
 
 /* ── Upload zone ──────────────────────────────────────────────────────────── */
-function UploadZone({ collapsed, onUploaded }: {
+function UploadZone({ collapsed }: {
   collapsed: boolean
-  onUploaded: (projectId: string) => void
 }) {
-  const { login } = useSession()
-  const { createProject, setActiveProject, updateProjectSession } = useProject()
+  const { createProject, updateProjectSession } = useProject()
   const inputRef = useRef<HTMLInputElement>(null)
   const [dragging, setDragging] = useState(false)
   const [uploading, setUploading] = useState(false)
@@ -75,30 +73,26 @@ function UploadZone({ collapsed, onUploaded }: {
     setUploading(true)
     setErrorMsg('')
 
-    // Create the project immediately so it appears in the sidebar during upload.
+    // Create the project record immediately so it appears in Uploaded Files during processing.
+    // Do NOT auto-connect session or activate chat — user decides when to connect.
     const stem = file.name.replace(/\.[^.]+$/, '')
     let projectId: string | null = null
     try {
       projectId = await createProject({ title: stem.slice(0, 80), dbType: 'file' })
-      await setActiveProject(projectId)
     } catch { /* not signed in — continue without persisting */ }
 
     try {
       const res = await uploadFile(file)
-      // Update the project with session + storage path now that upload succeeded.
+      // Store session + storage path on the project — connection happens on user demand.
       if (projectId) await updateProjectSession(projectId, res.session_id, res.db_path ?? undefined)
-      login(res)
-      sessionStorage.setItem('sessionId', res.session_id)
-      if (projectId) onUploaded(projectId)
     } catch (err: unknown) {
       const msg = (err as { response?: { data?: { detail?: string } }; message?: string })
         ?.response?.data?.detail ?? (err as Error).message ?? 'Upload failed'
       setErrorMsg(msg)
-      // Leave the project row so user can see it failed — they can delete or retry.
     } finally {
       setUploading(false)
     }
-  }, [login, createProject, updateProjectSession, setActiveProject, onUploaded])
+  }, [createProject, updateProjectSession])
 
   function onDrop(e: React.DragEvent) {
     e.preventDefault(); setDragging(false)
@@ -429,7 +423,7 @@ export default function Sidebar() {
         </div>
 
         {/* Upload zone */}
-        <UploadZone collapsed={collapsed} onUploaded={() => {}} />
+        <UploadZone collapsed={collapsed} />
 
         {/* Divider */}
         {!collapsed && <div className="mx-3 mb-2" style={{ borderTop: '1px solid oklch(1 0 0 / 0.07)' }} />}

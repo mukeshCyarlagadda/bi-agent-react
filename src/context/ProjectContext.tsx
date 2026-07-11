@@ -156,6 +156,14 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
 
   // ── deleteProject ────────────────────────────────────────────────────────────
   const deleteProject = useCallback(async (id: string) => {
+    // Delete Supabase Storage file first if this is a file project
+    const project = projects.find(p => p.id === id)
+    if (project?.db_path) {
+      try {
+        const { deleteStorageFile } = await import('@/api/connections')
+        await deleteStorageFile(project.db_path)
+      } catch { /* non-fatal — storage cleanup best-effort */ }
+    }
     await supabase.from('projects').delete().eq('id', id)
     setProjects(prev => prev.filter(p => p.id !== id))
     if (activeProjectId === id) {
@@ -163,7 +171,7 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
       loadChatHistory([])
       loadedRef.current = null
     }
-  }, [activeProjectId, loadChatHistory])
+  }, [activeProjectId, loadChatHistory, projects])
 
   // ── renameProject ────────────────────────────────────────────────────────────
   const renameProject = useCallback(async (id: string, title: string) => {

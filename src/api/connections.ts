@@ -38,3 +38,7 @@ export async function reconnectFile(dbPath: string): Promise<import('@/types/api
   const { data } = await apiClient.post('/api/v1/reconnect-file', { db_path: dbPath })
   return data
 }
+
+export async function deleteStorageFile(storageKey: string): Promise<void> {
+  await apiClient.delete('/api/v1/files', { data: { storage_key: storageKey } })
+}
