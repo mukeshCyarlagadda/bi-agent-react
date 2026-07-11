@@ -336,8 +336,10 @@ export default function Sidebar() {
   const [showConnect, setShowConnect] = useState(false)
   const [previewProject, setPreviewProject] = useState<SupabaseProject | null>(null)
 
-  // Uploaded Files = all file-type projects, including ones still uploading (no db_path yet).
+  // Uploaded Files = file-type projects (data sources, not chat sessions)
   const fileProjects = projects.filter(p => p.db_type === 'file')
+  // Projects = chat sessions only (excludes raw file uploads)
+  const chatProjects = projects.filter(p => p.db_type !== 'file')
 
   async function newProject() {
     try {
@@ -445,18 +447,18 @@ export default function Sidebar() {
                 )}
 
                 {/* Divider between sections */}
-                {fileProjects.length > 0 && projects.length > 0 && !collapsed && (
+                {fileProjects.length > 0 && chatProjects.length > 0 && !collapsed && (
                   <div className="mx-3" style={{ borderTop: '1px solid oklch(1 0 0 / 0.07)' }} />
                 )}
 
-                {/* Projects — all projects including file-based ones for chat */}
-                {projects.length === 0 && !collapsed
+                {/* Projects — chat sessions only */}
+                {chatProjects.length === 0 && !collapsed
                   ? <div className="flex flex-col items-center gap-2 px-4 py-6 text-center">
                       <p className="text-xs" style={{ color: 'oklch(0.72 0.03 70)' }}>No projects yet</p>
                       <p className="text-[11px]" style={{ color: 'oklch(0.72 0.03 70 / 0.55)' }}>Upload a file or send a message</p>
                     </div>
                   : <ProjectsList
-                      projects={projects}
+                      projects={chatProjects}
                       activeProjectId={activeProjectId}
                       collapsed={collapsed}
                       onSelect={handleProjectSelect}
