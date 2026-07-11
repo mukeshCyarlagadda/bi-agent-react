@@ -330,8 +330,9 @@ export default function Sidebar() {
   const [showConnect, setShowConnect] = useState(false)
   const [previewProject, setPreviewProject] = useState<SupabaseProject | null>(null)
 
-  // File projects in "Uploaded Files"; ALL projects (including files) in "Projects"
-  const fileProjects = projects.filter(p => p.db_type === 'file')
+  // Uploaded Files = only actual file uploads (have a db_path stored).
+  // Chat sessions connected to a file are independent projects — not shown here.
+  const fileProjects = projects.filter(p => p.db_type === 'file' && !!p.db_path)
 
   async function newProject() {
     try {

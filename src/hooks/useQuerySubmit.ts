@@ -20,35 +20,36 @@ export function useQuerySubmit() {
     const entryId = crypto.randomUUID()
     addEntry({ id: entryId, question: q, pending: true, timestamp: new Date() })
 
-    // Resolve or auto-create a project for this message
+    // Resolve or auto-create a project for this message.
+    // Never inherit dbType from session — projects are independent of file uploads.
     let projectId = projectIdRef.current
     if (!projectId) {
       try {
-        projectId = await createProject({
-          title: q.slice(0, 60),
-          dbType: dbType ?? undefined,
-          backendSessionId: sessionId ?? undefined,
-        })
+        projectId = await createProject({ title: q.slice(0, 60) })
         projectIdRef.current = projectId
       } catch {
         // Not signed in or Supabase unavailable — continue without persisting
       }
     }
 
+    const runFreeChat = async () => {
+      const history = chatHistory
+        .filter(e => !e.isSystem && !e.pending && e.response?.result_type === 'message')
+        .slice(-6)
+        .flatMap(e => [
+          { role: 'user', content: e.question },
+          { role: 'assistant', content: e.response?.message ?? '' },
+        ])
+      const reply = await freeChat(q, history)
+      const response = { result_type: 'message' as const, message: reply }
+      updateEntry(entryId, response)
+      if (projectId) await saveMessage(projectId, q, response).catch(() => {})
+    }
+
     if (!sessionId) {
-      // Free-chat mode (no DB connected)
+      // No DB connected — use free-chat
       try {
-        const history = chatHistory
-          .filter(e => !e.isSystem && !e.pending && e.response?.result_type === 'message')
-          .slice(-6)
-          .flatMap(e => [
-            { role: 'user', content: e.question },
-            { role: 'assistant', content: e.response?.message ?? '' },
-          ])
-        const reply = await freeChat(q, history)
-        const response = { result_type: 'message' as const, message: reply }
-        updateEntry(entryId, response)
-        if (projectId) await saveMessage(projectId, q, response).catch(() => {})
+        await runFreeChat()
       } catch {
         updateEntry(entryId, { result_type: 'message', message: "I'm having trouble right now. Please try again." })
       }
@@ -56,15 +57,25 @@ export function useQuerySubmit() {
       return
     }
 
-    // DB query mode
+    // DB connected — run against the agent
     try {
       const response = await runQuery({ question: q })
       updateEntry(entryId, response)
       if (projectId) await saveMessage(projectId, q, response).catch(() => {})
     } catch (err: unknown) {
-      const detail = (err as { response?: { data?: { detail?: string } } })
-        ?.response?.data?.detail ?? 'Request failed — is the API server running?'
-      updateEntry(entryId, { result_type: 'error', error: detail })
+      const status = (err as { response?: { status?: number } })?.response?.status
+      if (status === 404) {
+        // Session expired on the backend — fall back to free-chat gracefully
+        try {
+          await runFreeChat()
+        } catch {
+          updateEntry(entryId, { result_type: 'message', message: "Session expired. Please reconnect a database or file." })
+        }
+      } else {
+        const detail = (err as { response?: { data?: { detail?: string } } })
+          ?.response?.data?.detail ?? 'Request failed — is the API server running?'
+        updateEntry(entryId, { result_type: 'error', error: detail })
+      }
     } finally {
       setLoading(false)
     }
