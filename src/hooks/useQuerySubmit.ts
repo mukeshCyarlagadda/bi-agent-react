@@ -4,7 +4,7 @@ import { useSession } from '@/context/SessionContext'
 import { useProject } from '@/context/ProjectContext'
 
 export function useQuerySubmit() {
-  const { sessionId, dbType, chatHistory, addEntry, updateEntry } = useSession()
+  const { sessionId, chatHistory, addEntry, updateEntry } = useSession()
   const { activeProjectId, createProject, saveMessage } = useProject()
   const [loading, setLoading] = useState(false)
 
