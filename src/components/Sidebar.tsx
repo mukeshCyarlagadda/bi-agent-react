@@ -383,7 +383,7 @@ export default function Sidebar() {
               style={{ color: 'oklch(0.87 0.02 75)' }}>
               <PanelLeft className="h-5 w-5" />
             </button>
-            <Link to="/" title="BI Agent"
+            <Link to="/" title="Kensho AI"
               className="flex h-9 w-9 items-center justify-center rounded-xl transition hover:bg-white/5">
               <div className="gradient-primary flex h-8 w-8 shrink-0 items-center justify-center rounded-lg">
                 <Diamond className="h-4 w-4" style={{ color: 'oklch(0.15 0.02 45)' }} fill="currentColor" />
@@ -397,7 +397,7 @@ export default function Sidebar() {
               <div className="gradient-primary flex h-8 w-8 shrink-0 items-center justify-center rounded-lg">
                 <Diamond className="h-4 w-4" style={{ color: 'oklch(0.15 0.02 45)' }} fill="currentColor" />
               </div>
-              <span className="font-display text-sm font-semibold">BI Agent</span>
+              <span className="font-display text-sm font-semibold">Kensho AI</span>
             </Link>
             <button onClick={() => setCollapsed(true)} title="Collapse sidebar"
               className="flex h-8 w-8 items-center justify-center rounded-lg transition hover:bg-white/5"
