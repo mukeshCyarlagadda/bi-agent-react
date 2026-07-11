@@ -47,7 +47,7 @@ interface ProjectContextValue {
   deleteProject: (id: string) => Promise<void>
   renameProject: (id: string, title: string) => Promise<void>
   saveMessage: (projectId: string, question: string, response: QueryResponse) => Promise<void>
-  updateProjectSession: (id: string, backendSessionId: string) => Promise<void>
+  updateProjectSession: (id: string, backendSessionId: string, dbPath?: string) => Promise<void>
   // Dashboard
   dashboardItems: DashboardItem[]
   loadingDashboard: boolean
@@ -220,12 +220,13 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
   }, [])
 
   // ── updateProjectSession — called when DB is connected inside a project ──────
-  const updateProjectSession = useCallback(async (id: string, backendSessionId: string) => {
-    await supabase
-      .from('projects')
-      .update({ backend_session_id: backendSessionId })
-      .eq('id', id)
-    setProjects(prev => prev.map(p => p.id === id ? { ...p, backend_session_id: backendSessionId } : p))
+  const updateProjectSession = useCallback(async (id: string, backendSessionId: string, dbPath?: string) => {
+    const patch: Record<string, string> = { backend_session_id: backendSessionId }
+    if (dbPath) patch.db_path = dbPath
+    await supabase.from('projects').update(patch).eq('id', id)
+    setProjects(prev => prev.map(p =>
+      p.id === id ? { ...p, backend_session_id: backendSessionId, ...(dbPath ? { db_path: dbPath } : {}) } : p
+    ))
   }, [])
 
   return (

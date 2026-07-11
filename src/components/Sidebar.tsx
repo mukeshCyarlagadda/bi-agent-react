@@ -65,7 +65,7 @@ function UploadZone({ collapsed, onUploaded }: {
   onUploaded: (projectId: string) => void
 }) {
   const { login } = useSession()
-  const { createProject, setActiveProject } = useProject()
+  const { createProject, setActiveProject, updateProjectSession } = useProject()
   const inputRef = useRef<HTMLInputElement>(null)
   const [dragging, setDragging] = useState(false)
   const [uploading, setUploading] = useState(false)
@@ -74,27 +74,31 @@ function UploadZone({ collapsed, onUploaded }: {
   const handleFile = useCallback(async (file: File) => {
     setUploading(true)
     setErrorMsg('')
+
+    // Create the project immediately so it appears in the sidebar during upload.
+    const stem = file.name.replace(/\.[^.]+$/, '')
+    let projectId: string | null = null
+    try {
+      projectId = await createProject({ title: stem.slice(0, 80), dbType: 'file' })
+      await setActiveProject(projectId)
+    } catch { /* not signed in — continue without persisting */ }
+
     try {
       const res = await uploadFile(file)
-      const stem = file.name.replace(/\.[^.]+$/, '')
-      const projectId = await createProject({
-        title: stem.slice(0, 80),
-        dbType: 'file',
-        backendSessionId: res.session_id,
-        dbPath: res.db_path ?? undefined,
-      })
+      // Update the project with session + storage path now that upload succeeded.
+      if (projectId) await updateProjectSession(projectId, res.session_id, res.db_path ?? undefined)
       login(res)
       sessionStorage.setItem('sessionId', res.session_id)
-      await setActiveProject(projectId)
-      onUploaded(projectId)
+      if (projectId) onUploaded(projectId)
     } catch (err: unknown) {
       const msg = (err as { response?: { data?: { detail?: string } }; message?: string })
         ?.response?.data?.detail ?? (err as Error).message ?? 'Upload failed'
       setErrorMsg(msg)
+      // Leave the project row so user can see it failed — they can delete or retry.
     } finally {
       setUploading(false)
     }
-  }, [login, createProject, setActiveProject, onUploaded])
+  }, [login, createProject, updateProjectSession, setActiveProject, onUploaded])
 
   function onDrop(e: React.DragEvent) {
     e.preventDefault(); setDragging(false)
@@ -190,19 +194,27 @@ function FilesFolder({ files, collapsed, onPreview }: {
 
       {open && (
         <div className="space-y-0.5 px-2 pb-1">
-          {files.map(p => (
-            <div key={p.id}
-              onClick={e => { e.stopPropagation(); onPreview(p) }}
-              className="group flex cursor-pointer items-center gap-2 rounded-lg px-2 py-1.5 transition hover:bg-white/5"
-            >
-              <FileIcon name={p.title} />
-              <div className="min-w-0 flex-1">
-                <div className="truncate text-xs font-medium" style={{ color: 'oklch(0.87 0.02 75)' }}>{p.title}</div>
-                <div className="text-[10px]" style={{ color: 'oklch(0.72 0.03 70 / 0.60)' }}>{relativeTime(p.updated_at)}</div>
+          {files.map(p => {
+            const processing = !p.db_path
+            return (
+              <div key={p.id}
+                onClick={e => { e.stopPropagation(); if (!processing) onPreview(p) }}
+                className={`group flex items-center gap-2 rounded-lg px-2 py-1.5 transition ${processing ? 'cursor-default opacity-60' : 'cursor-pointer hover:bg-white/5'}`}
+              >
+                {processing
+                  ? <Loader2 className="h-3.5 w-3.5 shrink-0 animate-spin" style={{ color: 'oklch(0.72 0.19 55)' }} />
+                  : <FileIcon name={p.title} />
+                }
+                <div className="min-w-0 flex-1">
+                  <div className="truncate text-xs font-medium" style={{ color: 'oklch(0.87 0.02 75)' }}>{p.title}</div>
+                  <div className="text-[10px]" style={{ color: 'oklch(0.72 0.03 70 / 0.60)' }}>
+                    {processing ? 'Processing…' : relativeTime(p.updated_at)}
+                  </div>
+                </div>
+                {!processing && <Eye className="h-3 w-3 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" style={{ color: 'oklch(0.72 0.19 55)' }} />}
               </div>
-              <Eye className="h-3 w-3 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" style={{ color: 'oklch(0.72 0.19 55)' }} />
-            </div>
-          ))}
+            )
+          })}
         </div>
       )}
     </div>
@@ -330,9 +342,8 @@ export default function Sidebar() {
   const [showConnect, setShowConnect] = useState(false)
   const [previewProject, setPreviewProject] = useState<SupabaseProject | null>(null)
 
-  // Uploaded Files = only actual file uploads (have a db_path stored).
-  // Chat sessions connected to a file are independent projects — not shown here.
-  const fileProjects = projects.filter(p => p.db_type === 'file' && !!p.db_path)
+  // Uploaded Files = all file-type projects, including ones still uploading (no db_path yet).
+  const fileProjects = projects.filter(p => p.db_type === 'file')
 
   async function newProject() {
     try {
